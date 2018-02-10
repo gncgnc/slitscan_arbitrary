@@ -1,0 +1,3 @@
+*.gif
+frames/*
+build-tmp/*
