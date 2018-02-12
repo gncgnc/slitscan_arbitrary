@@ -6,7 +6,7 @@ float time = 0;
 PGraphics pg; // for actual animation
 int pgWidth = 300;
 int pgHeight = pgWidth;
-int pgNumFrames = 300;
+int pgNumFrames = 100;
 int pgFrameCount = 0;
 float pgtime;
 
@@ -45,10 +45,21 @@ void draw(){
 		for (int j=0; j<pgHeight; j++) {
 			int ind = i + j * pgWidth;
 			// determine which frame to take the pixel from in this location:
-			int f = f(i,j); 
-			PImage frame = frames[f];
-			frame.loadPixels();
-			dpg.pixels[ind] = frame.pixels[ind];
+			// int f = f(i,j); 
+			// PImage frame = frames[f];
+			// frame.loadPixels();
+			// dpg.pixels[ind] = frame.pixels[ind];
+			int rf = f(i,j,0.02);
+			int gf = f(i,j);
+			int bf = f(i,j,-0.02);
+			PImage rframe = frames[rf];
+			PImage gframe = frames[gf];
+			PImage bframe = frames[bf];
+			rframe.loadPixels();gframe.loadPixels();bframe.loadPixels();
+			color col = color(rframe.pixels[ind] >> 16 & 0xFF,
+							  gframe.pixels[ind] >>  8 & 0xFF, 
+							  bframe.pixels[ind] >>  4 & 0xFF);
+			dpg.pixels[ind] = col;
 		  }
 	}
 
@@ -64,9 +75,17 @@ void draw(){
 	}
 }
 
+int f(int x, int y, float toff) { 
+	int f = f(x,y);
+	// toff is normalised
+	return (f + mod(int(toff * pgNumFrames), pgNumFrames)) % pgNumFrames;
+	// NOTE: the better way to do this would be to make this the encompassing
+	// f(), and call this when no toff is given like f(x,y,0). 
+}
+
 // determine which frame to take the pixel from at a given location
 int f(int x, int y) {
-	// normalize
+	// normalise
 	float xn = (1.0*x)/pgWidth;
 	float yn = (1.0*y)/pgHeight;
 	// translate to center
